@@ -40,6 +40,16 @@ func (b *Bot) Start() {
 			bot.Send(msg)
 			continue
 		}
+		if update.Message.IsCommand() {
+			if update.Message.Text == "/clearChat" {
+
+				continue
+			}
+			if update.Message.Text == "/newTopic" {
+
+				continue
+			}
+		}
 
 	}
 }
