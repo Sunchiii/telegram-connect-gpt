@@ -1,4 +1,4 @@
-package main
+package client_api
 
 import (
 	"encoding/json"
@@ -15,7 +15,7 @@ var (
 
 type Topic struct {
 	Model       string    `json:"model"`
-	Temperature string    `json:"temperature"`
+	Temperature float64   `json:"temperature"`
 	Messages    []Message `json:"messages"`
 }
 type Message struct {
@@ -26,8 +26,8 @@ type Message struct {
 func Ask(payload Topic) string {
 	client := &http.Client{}
 	Payload, _ := json.Marshal(payload)
-	newPayload := strings.NewReader(string(Payload))
-	req, err := http.NewRequest(METHOD, os.Getenv("CHATGPT_API"), newPayload)
+	str := strings.NewReader(string(Payload))
+	req, err := http.NewRequest(METHOD, os.Getenv("CHATGPT_API"), str)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -40,12 +40,15 @@ func Ask(payload Topic) string {
 	if err != nil {
 		fmt.Println(err)
 	}
-	res.Body.Close()
+	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		fmt.Println(err)
 		return ""
 	}
+
+	fmt.Println("---------------->>", res)
+
 	return string(body)
 
 }
