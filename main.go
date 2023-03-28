@@ -15,6 +15,11 @@ type Bot struct {
 }
 
 func (b *Bot) Start() {
+	topic := Topic{
+		Model:       "gpt-3.5-turbo-0301",
+		Temperature: "0.7",
+		Messages:    []Message{},
+	}
 	bot, err := tgbotapi.NewBotAPI(b.Token)
 	if err != nil {
 		panic(err)
@@ -33,7 +38,15 @@ func (b *Bot) Start() {
 		chatID := update.Message.Chat.ID
 		actionTyping := tgbotapi.NewChatAction(chatID, tgbotapi.ChatTyping)
 		if update.Message != nil {
+			//send status typing
 			bot.Send(actionTyping)
+			//define msg
+			Message := Message{
+				Role:    "user",
+				Content: update.Message.Text,
+			}
+
+			topic.Messages = append(topic.Messages, Message)
 			msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
 			msg.ReplyToMessageID = update.Message.MessageID
 
