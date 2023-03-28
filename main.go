@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -27,7 +26,7 @@ func (b *Bot) Start() {
 
 	bot.Debug = true
 
-	fmt.Printf("Authorized on account %s\n", bot.Self.UserName)
+	//fmt.Printf("Authorized on account %s\n", bot.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
@@ -49,13 +48,18 @@ func (b *Bot) Start() {
 			//append old msg and new msg
 			topic.Messages = append(topic.Messages, Message)
 
-			fmt.Println(topic)
-			answer := client_api.Ask(topic)
+			var choices = []client_api.Choice{}
+			choices = client_api.Ask(topic)
 
-			msg := tgbotapi.NewMessage(update.Message.Chat.ID, answer)
-			msg.ReplyToMessageID = update.Message.MessageID
+			for _, message := range choices {
+				newMsg := client_api.Message{}
+				newMsg = message.Message
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, newMsg.Content)
+				msg.ReplyToMessageID = update.Message.MessageID
 
-			bot.Send(msg)
+				bot.Send(msg)
+			}
+
 			continue
 		}
 		if update.Message.IsCommand() {
