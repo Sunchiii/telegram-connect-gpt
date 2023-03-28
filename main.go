@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -29,14 +30,17 @@ func (b *Bot) Start() {
 	updates, err := bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		if update.Message == nil {
+		chatID := update.Message.Chat.ID
+		actionTyping := tgbotapi.NewChatAction(chatID, tgbotapi.ChatTyping)
+		if update.Message != nil {
+			bot.Send(actionTyping)
+			msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+			msg.ReplyToMessageID = update.Message.MessageID
+
+			bot.Send(msg)
 			continue
 		}
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		msg.ReplyToMessageID = update.Message.MessageID
-
-		bot.Send(msg)
 	}
 }
 
@@ -47,9 +51,9 @@ func init() {
 }
 
 func main() {
-	bot1 := Bot{Token: "BOT1_TOKEN"}
+	bot1 := Bot{Token: os.Getenv("TG_SUNDAY")}
 
 	go bot1.Start()
 
-	time.Sleep(time.Hour)
+	time.Sleep(8760 * time.Hour)
 }
