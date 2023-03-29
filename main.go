@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -26,7 +27,7 @@ func (b *Bot) Start() {
 
 	bot.Debug = true
 
-	//fmt.Printf("Authorized on account %s\n", bot.Self.UserName)
+	fmt.Printf("Authorized on account %s\n", bot.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
