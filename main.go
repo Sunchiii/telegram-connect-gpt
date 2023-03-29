@@ -108,9 +108,11 @@ func init() {
 }
 
 func main() {
-	bot1 := Bot{Token: os.Getenv("TG_SUNDAY")}
+	sunday := Bot{Token: os.Getenv("TG_SUNDAY")}
+	humyai := Bot{Token: os.Getenv("HUMYAI")}
 
-	bot1.Start()
+	go sunday.Start()
+	go humyai.Start()
 
-	time.Sleep(time.Hour)
+	time.Sleep(time.Hour * 8000)
 }
