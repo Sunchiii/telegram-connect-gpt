@@ -36,9 +36,56 @@ func (b *Bot) Start() {
 	for update := range updates {
 		chatID := update.Message.Chat.ID
 		actionTyping := tgbotapi.NewChatAction(chatID, tgbotapi.ChatTyping)
+		var chatHistory []int
+
 		if update.Message != nil {
 			//send status typing
 			bot.Send(actionTyping)
+			//check command
+			if update.Message.IsCommand() {
+				if update.Message.Text == "/start" {
+					//keep chatHistory
+					chatHistory = append(chatHistory, update.Message.MessageID)
+					//clear chatHistory
+					for _, msgId := range chatHistory {
+						deleteMessage := tgbotapi.NewDeleteMessage(chatID, msgId)
+						if _, err := bot.Send(deleteMessage); err != nil {
+							log.Panic(err)
+						}
+					}
+
+					continue
+				}
+				if update.Message.Text == "/clearchat" {
+					//keep chatHistory
+					chatHistory = append(chatHistory, update.Message.MessageID)
+					//clear chatHistory
+					for _, msgId := range chatHistory {
+						deleteMessage := tgbotapi.NewDeleteMessage(chatID, msgId)
+						if _, err := bot.Send(deleteMessage); err != nil {
+							log.Panic(err)
+						}
+					}
+
+					continue
+				}
+				if update.Message.Text == "/newtopic" {
+					//keep chatHistory
+					chatHistory = append(chatHistory, update.Message.MessageID)
+					//clear topice
+					topic.Messages = []client_api.Message{}
+					//clear chat
+					for _, msgId := range chatHistory {
+						deleteMessage := tgbotapi.NewDeleteMessage(chatID, msgId)
+						if _, err := bot.Send(deleteMessage); err != nil {
+							log.Panic(err)
+						}
+					}
+					continue
+				}
+			}
+			//keep chat id
+			chatHistory = append(chatHistory, update.Message.MessageID)
 			//define msg
 			Message := client_api.Message{
 				Role:    "user",
@@ -48,9 +95,11 @@ func (b *Bot) Start() {
 			//append old msg and new msg
 			topic.Messages = append(topic.Messages, Message)
 
+			//get choices from api
 			var choices = []client_api.Choice{}
 			choices = client_api.Ask(topic)
 
+			//reply each message
 			for _, message := range choices {
 				newMsg := client_api.Message{}
 				newMsg = message.Message
@@ -61,16 +110,6 @@ func (b *Bot) Start() {
 			}
 
 			continue
-		}
-		if update.Message.IsCommand() {
-			if update.Message.Text == "/clearChat" {
-
-				continue
-			}
-			if update.Message.Text == "/newTopic" {
-
-				continue
-			}
 		}
 
 	}
