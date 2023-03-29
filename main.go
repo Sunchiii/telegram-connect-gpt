@@ -62,8 +62,8 @@ func (b *Bot) Start() {
 					//clear chatHistory
 					for _, msgId := range chatHistory {
 						deleteMessage := tgbotapi.NewDeleteMessage(chatID, msgId)
-						if _, err := bot.Send(deleteMessage); err != nil {
-							log.Panic(err)
+						if ms, err := bot.Send(deleteMessage); err != nil {
+							log.Fatal(ms, err)
 						}
 					}
 
@@ -77,8 +77,8 @@ func (b *Bot) Start() {
 					//clear chat
 					for _, msgId := range chatHistory {
 						deleteMessage := tgbotapi.NewDeleteMessage(chatID, msgId)
-						if _, err := bot.Send(deleteMessage); err != nil {
-							log.Panic(err)
+						if ms, err := bot.Send(deleteMessage); err != nil {
+							log.Fatal(ms, err)
 						}
 					}
 					continue
