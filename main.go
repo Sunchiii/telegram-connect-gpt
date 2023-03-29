@@ -109,7 +109,7 @@ func init() {
 
 func main() {
 	sunday := Bot{Token: os.Getenv("TG_SUNDAY")}
-	humyai := Bot{Token: os.Getenv("HUMYAI")}
+	humyai := Bot{Token: os.Getenv("TG_HUMYAI")}
 
 	go sunday.Start()
 	go humyai.Start()
