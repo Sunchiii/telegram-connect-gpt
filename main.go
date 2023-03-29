@@ -32,60 +32,44 @@ func (b *Bot) Start() {
 	u.Timeout = 60
 
 	updates := bot.GetUpdatesChan(u)
+	var chatHistory []int
 
 	for update := range updates {
 		chatID := update.Message.Chat.ID
 		actionTyping := tgbotapi.NewChatAction(chatID, tgbotapi.ChatTyping)
-		var chatHistory []int
 
 		if update.Message != nil {
+			//keep chat id
+			chatHistory = append(chatHistory, update.Message.MessageID)
 			//send status typing
 			bot.Send(actionTyping)
 			//check command
 			if update.Message.IsCommand() {
 				if update.Message.Text == "/start" {
-					//keep chatHistory
-					chatHistory = append(chatHistory, update.Message.MessageID)
-					//clear chatHistory
-					for _, msgId := range chatHistory {
-						deleteMessage := tgbotapi.NewDeleteMessage(chatID, msgId)
-						if _, err := bot.Send(deleteMessage); err != nil {
-							log.Panic(err)
-						}
-					}
-
+					chatHistory = []int{}
+					topic.Messages = []client_api.Message{}
 					continue
 				}
 				if update.Message.Text == "/clearchat" {
-					//keep chatHistory
-					chatHistory = append(chatHistory, update.Message.MessageID)
 					//clear chatHistory
 					for _, msgId := range chatHistory {
 						deleteMessage := tgbotapi.NewDeleteMessage(chatID, msgId)
-						if ms, err := bot.Send(deleteMessage); err != nil {
-							log.Fatal(ms, err)
-						}
+						bot.Send(deleteMessage)
 					}
 
 					continue
 				}
 				if update.Message.Text == "/newtopic" {
-					//keep chatHistory
-					chatHistory = append(chatHistory, update.Message.MessageID)
 					//clear topice
 					topic.Messages = []client_api.Message{}
 					//clear chat
 					for _, msgId := range chatHistory {
 						deleteMessage := tgbotapi.NewDeleteMessage(chatID, msgId)
-						if ms, err := bot.Send(deleteMessage); err != nil {
-							log.Fatal(ms, err)
-						}
+						bot.Send(deleteMessage)
 					}
 					continue
 				}
 			}
-			//keep chat id
-			chatHistory = append(chatHistory, update.Message.MessageID)
 			//define msg
 			Message := client_api.Message{
 				Role:    "user",
@@ -106,7 +90,8 @@ func (b *Bot) Start() {
 				msg := tgbotapi.NewMessage(update.Message.Chat.ID, newMsg.Content)
 				msg.ReplyToMessageID = update.Message.MessageID
 
-				bot.Send(msg)
+				mId, _ := bot.Send(msg)
+				chatHistory = append(chatHistory, mId.MessageID)
 			}
 
 			continue
